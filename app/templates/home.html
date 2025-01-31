@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mi Web con IA</title>
+</head>
+<body>
+    <h1>Bienvenido a Mi Web con IA</h1>
+    <button onclick="llamarIA()">Llamar API de IA</button>
+    <p id="resultado"></p>
+
+    <script>
+        function llamarIA() {
+            fetch('/api/ia/')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('resultado').innerText = data.respuesta;
+            });
+        }
+    </script>
+</body>
+</html>
