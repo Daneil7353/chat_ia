@@ -1,21 +1,22 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Mi Web con IA</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Texto IA</title>
 </head>
 <body>
-    <h1>Bienvenido a Mi Web con IA</h1>
-    <button onclick="llamarIA()">Llamar API de IA</button>
-    <p id="resultado"></p>
+    <h1>Generador de Texto IA</h1>
 
-    <script>
-        function llamarIA() {
-            fetch('/api/ia/')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('resultado').innerText = data.respuesta;
-            });
-        }
-    </script>
+    <form method="GET">
+        <label for="prompt">Escribe algo:</label>
+        <input type="text" id="prompt" name="prompt">
+        <button type="submit">Generar</button>
+    </form>
+
+    {% if response_text %}
+        <h2>Respuesta de la IA:</h2>
+        <p>{{ response_text }}</p>
+    {% endif %}
 </body>
 </html>

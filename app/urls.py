@@ -1,7 +1,6 @@
 from django.urls import path
-from . import views
+from .views import generate_text
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    path('api/ia/', views.api_ia, name='api_ia'),
+    path('', generate_text, name='generate_text'),
 ]
