@@ -5,11 +5,11 @@ from transformers import pipeline
 app = FastAPI()
 
 # Cargar el modelo en local (esto puede tardar un poco)
-modelo_ia = pipeline("text-generation", model="mistral-7b-instruct", torch_dtype=torch.bfloat16, device=-1)
+modelo_ia = pipeline("text-generation", model="HuggingFaceH4/zephyr-7b-beta", torch_dtype=torch.bfloat16, device=-1)
 
 @app.get("/generate/")
 def generate_text(prompt: str):
-    resultado = modelo_ia(prompt, max_length=100, temperature=0.7, top_p=0.9)
+    resultado = modelo_ia(prompt)
     return {"generated_text": resultado[0]["generated_text"]}
 
 # Ejecutar la API en local

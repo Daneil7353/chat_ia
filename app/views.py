@@ -26,14 +26,20 @@ def call_huggingface_api(prompt):
         
 
 def generate_text(request):
-    api_ext = True
+    api_ext = False
     prompt = request.GET.get("prompt","")
     response = ""
+    response_text = ""
 
     if prompt:
         if api_ext:
-            response = call_huggingface_api(prompt)
+            response_text = call_huggingface_api(prompt)
         else:    
             response = requests.get(API_URL, params={"prompt": prompt})
+            if response.status_code == 200:
+                response_text = response.json().get("generated_text", "Error al generar texto")
+
+            
+    return render(request, "home.html", {"response_text": response_text})
         
-    return render(request, "home.html", {"response_text": response})
+    

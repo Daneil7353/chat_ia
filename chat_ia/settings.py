@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-wm3#s6fjvv%qf*_8_nt*ayl#)0c&am(-8x3+n9$o8=tv&$op76
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["192.168.1.206", "localhost", "daniGPT"]
+ALLOWED_HOSTS = ["192.168.*.*", "localhost", "daniGPT", "*"]
 
 
 # Application definition
