@@ -3,21 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Texto IA</title>
+    <title>DaniGPT</title>
     <link rel="shortcut icon" href="#">
 </head>
 <body>
     <h1>Generador de Texto IA</h1>
-
+    {% if response_text %}
+        {text = response_text}
+        <p>{{ text }}</p>
+    {% endif %}
     <form method="GET">
         <label for="prompt">Escribe algo:</label>
         <input type="text" id="prompt" name="prompt">
         <button type="submit">Generar</button>
     </form>
-
-    {% if response_text %}
-        <h2>Respuesta de la IA:</h2>
-        <p>{{ response_text }}</p>
-    {% endif %}
 </body>
 </html>
