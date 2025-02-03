@@ -5,6 +5,7 @@ import { reportWebVitals } from 'web-vitals';
 
 export default function App() {
   const [prompt, setPrompt] = useState("");
+  const [question, setQuestion] = useState("");
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -12,15 +13,34 @@ export default function App() {
     if (!prompt.trim()) return;
     setLoading(true);
     setResponse("");
+    setQuestion("");
 
     try {
       const res = await fetch("http://localhost:5000/generate/?prompt=" + encodeURIComponent(prompt));
+
+      // Verifica si la respuesta es exitosa
+      if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+
       const data = await res.json();
-      setResponse(data.generated_text);
-    } catch (error) {
-      setResponse("Error fetching response");
-    }
-    setLoading(false);
+
+      // Verifica si la API devuelve la estructura esperada
+      if (!data.generated_text) {
+          throw new Error("Invalid response structure: " + JSON.stringify(data));
+      }
+      let text = data.generated_text;
+      const parts = text.split("<|assistant|>");
+      const aiResponse = parts.length > 1 ? parts[1].trim() : text;
+      const cleanPrompt = prompt?.replace("<|user|>", "").trim() || "";
+      setQuestion(cleanPrompt);
+      setResponse(aiResponse);
+  } catch (error) {
+      console.error("Error al obtener respuesta:", error);
+      setResponse("Error fetching response: " + error.message);
+  } finally {
+      setLoading(false);
+  }
   };
 
   return (
@@ -42,7 +62,8 @@ export default function App() {
       </button>
       <div className="mt-4 w-full max-w-xl p-2 bg-gray-800 rounded-lg">
         <h2 className="text-lg font-semibold">Response:</h2>
-        <p className="mt-2 whitespace-pre-line">{response || "Waiting for response..."}</p>
+        <p className="mt-2 whitespace-pre-line">{question || "Waiting for response..."}</p>
+        <p className="mt-2 whitespace-pre-line">{response || ""}</p>
       </div>
     </div>
   );

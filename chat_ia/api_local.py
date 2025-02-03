@@ -1,8 +1,18 @@
 import torch
 from fastapi import FastAPI
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Configuración del modelo en GPU si es posible
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -21,9 +31,10 @@ def generate_text(prompt: str):
     inputs = tokenizer(prompt_formateado, return_tensors="pt").to(device)
 
     # Generación de la respuesta
+    max_new_tokens = min(200, len(inputs["input_ids"][0]) + 100)
     output = modelo_ia.generate(
         **inputs, 
-        max_length=500, 
+        max_new_tokens=max_new_tokens, 
         temperature=0.7, 
         top_p=0.9, 
         do_sample=True, 
