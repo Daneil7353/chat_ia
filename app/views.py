@@ -2,9 +2,12 @@ import requests
 from django.shortcuts import render
 from django.http import JsonResponse
 from huggingface_hub import InferenceClient
+from dotenv import load_dotenv
+import os
 
 # Create your views here.
-token = "REDACTED"
+load_dotenv()
+token = os.getenv("HF_TOKEN")
 API_URL_EXT = "https://api-inference.huggingface.co/models/deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"
 API_URL = "http://127.0.0.1:5000/generate/"
 
