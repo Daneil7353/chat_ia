@@ -5,15 +5,12 @@ import { reportWebVitals } from 'web-vitals';
 
 export default function App() {
   const [prompt, setPrompt] = useState("");
-  const [question, setQuestion] = useState("");
-  const [response, setResponse] = useState("");
+  const [response, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const sendPrompt = async () => {
     if (!prompt.trim()) return;
     setLoading(true);
-    setResponse("");
-    setQuestion("");
 
     try {
       const res = await fetch("http://localhost:5000/generate/?prompt=" + encodeURIComponent(prompt));
@@ -24,20 +21,26 @@ export default function App() {
       }
 
       const data = await res.json();
-
       // Verifica si la API devuelve la estructura esperada
       if (!data.generated_text) {
           throw new Error("Invalid response structure: " + JSON.stringify(data));
       }
+
       let text = data.generated_text;
       const parts = text.split("<|assistant|>");
       const aiResponse = parts.length > 1 ? parts[1].trim() : text;
       const cleanPrompt = prompt?.replace("<|user|>", "").trim() || "";
-      setQuestion(cleanPrompt);
-      setResponse(aiResponse);
-  } catch (error) {
+
+      setMessages(prevMessages => [
+        ...prevMessages,
+        { type: "user", text: cleanPrompt },
+        { type: "assistant", text: aiResponse }
+      ]);
+
+      setPrompt("");
+      } catch (error) {
       console.error("Error al obtener respuesta:", error);
-      setResponse("Error fetching response: " + error.message);
+      setMessages("Error fetching response: " + error.message);
   } finally {
       setLoading(false);
   }
@@ -46,6 +49,13 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-4">
       <h1 className="text-2xl font-bold mb-4">AI Text Generator</h1>
+      <div className="w-full max-w-xl h-96 overflow-y-auto p-4 bg-gray-800 rounded-lg">
+        {response.map((msg, index) => (
+          <div key={index} className={`p-2 rounded-lg my-2 ${msg.type === "user" ? "bg-blue-600 text-white" : "bg-gray-700 text-white"}`}>
+            <strong>{msg.type === "user" ? "You" : "AI"}:</strong> {msg.text}
+          </div>
+        ))}
+      </div>
       <textarea
         className="w-full max-w-xl p-2 rounded-lg text-black"
         rows="4"
@@ -60,11 +70,6 @@ export default function App() {
       >
         {loading ? "Generating..." : "Generate"}
       </button>
-      <div className="mt-4 w-full max-w-xl p-2 bg-gray-800 rounded-lg">
-        <h2 className="text-lg font-semibold">Response:</h2>
-        <p className="mt-2 whitespace-pre-line">{question || "Waiting for response..."}</p>
-        <p className="mt-2 whitespace-pre-line">{response || ""}</p>
-      </div>
     </div>
   );
 }
