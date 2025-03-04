@@ -1,12 +1,20 @@
 import logo from './logo.svg';
 import './App.css';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { reportWebVitals } from 'web-vitals';
 
 export default function App() {
   const [prompt, setPrompt] = useState("");
   const [response, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(
+    localStorage.getItem("theme") === "dark"
+  );
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    localStorage.setItem("theme", darkMode ? "dark" : "light");
+  }, [darkMode]);
 
   const sendPrompt = async () => {
     if (!prompt.trim()) return;
@@ -40,36 +48,56 @@ export default function App() {
       setPrompt("");
       } catch (error) {
       console.error("Error al obtener respuesta:", error);
-      setMessages("Error fetching response: " + error.message);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { type: "error", text: "Error fetching response: " + error.message },
+      ]);
   } finally {
       setLoading(false);
   }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-4">
-      <h1 className="text-2xl font-bold mb-4">AI Text Generator</h1>
-      <div className="w-full max-w-xl h-96 overflow-y-auto p-4 bg-gray-800 rounded-lg">
+    <div className={'min-h-screen flex flex-col items-center bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300'}>
+      <header className="w-full flex justify-between items-center p-4 bg-white dark:bg-gray-800 shadow-md">
+        <h1 className="text-xl font-bold">AI Chat</h1>
+        <button
+          className="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-black dark:text-white"
+          onClick={() => setDarkMode(!darkMode)}
+        >
+          {darkMode ? "Light Mode" : "Dark Mode"}
+        </button>
+      </header>
+      <div className="w-full max-w-2xl flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-800 rounded-lg shadow-md">
         {response.map((msg, index) => (
-          <div key={index} className={`p-2 rounded-lg my-2 ${msg.type === "user" ? "bg-blue-600 text-white" : "bg-gray-700 text-white"}`}>
-            <strong>{msg.type === "user" ? "You" : "AI"}:</strong> {msg.text}
+          <div key={index} className={`p-3 rounded-lg my-2 ${
+            msg.type === "user" ? "bg-blue-500 text-white" :
+            msg.type === "assistant" ? "bg-gray-300 dark:bg-gray-700" : "bg-red-500 text-white"
+          }`}>
+            <strong>{msg.type === "user" ? "You" : msg.type === "assistant" ? "AI" : "Error"}:/</strong> {msg.text}
           </div>
         ))}
       </div>
-      <textarea
-        className="w-full max-w-xl p-2 rounded-lg text-black"
-        rows="4"
-        placeholder="Enter your prompt here..."
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-      />
-      <button
-        className="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-        onClick={sendPrompt}
-        disabled={loading}
-      >
-        {loading ? "Generating..." : "Generate"}
-      </button>
+      <div className="w-full max-w-2xl flex flex-col p-4">
+        <textarea
+          className="w-full p-2 rounded-lg text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-700"
+          rows="3"
+          placeholder="Enter your prompt here..."
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+        />
+        <button
+          className="mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+          onClick={sendPrompt}
+          disabled={loading}
+        >
+         {loading ? "Generating..." : "Generate"}
+        </button>
+      </div>
     </div>
   );
+
+
+    
+
 }
